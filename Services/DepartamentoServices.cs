@@ -1,4 +1,5 @@
 ﻿using API_CRUDMONGO.Models;
+using Microsoft.Extensions.Options;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using System.Security.Cryptography;
@@ -12,9 +13,9 @@ namespace API_CRUDMONGO.Services
         private readonly IMongoDatabase _dataBase;
         private readonly IMongoCollection<BsonDocument> _collection;
 
-        public DepartamentoServices(IConfiguration configuration)
+        public DepartamentoServices(IOptions<BookStoreDatabaseSettings> DBSettings)
         {
-            _conexion = configuration.GetConnectionString("conexionMongo");
+            _conexion = DBSettings.Value.ConnectionStrings;
             _client = new MongoClient(_conexion);
             _dataBase = _client.GetDatabase("Empleados");
             _collection = _dataBase.GetCollection<BsonDocument>("Departamentos");

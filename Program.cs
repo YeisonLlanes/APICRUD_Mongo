@@ -1,8 +1,10 @@
+using API_CRUDMONGO.Models;
 using API_CRUDMONGO.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.Configure<BookStoreDatabaseSettings>(builder.Configuration.GetSection("BookStoreDataBase"));
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -10,6 +12,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<IDepartamento, DepartamentoServices>();
+builder.Services.AddScoped<IBook, BookService>();
 
 var app = builder.Build();
 
