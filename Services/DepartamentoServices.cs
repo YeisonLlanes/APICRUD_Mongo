@@ -1,4 +1,6 @@
 ﻿using API_CRUDMONGO.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -8,23 +10,32 @@ namespace API_CRUDMONGO.Services
 {
     public class DepartamentoServices : IDepartamento
     {
-        private readonly string _conexion = "";
-        private readonly MongoClient _client;
-        private readonly IMongoDatabase _dataBase;
-        private readonly IMongoCollection<BsonDocument> _collection;
+        //private readonly string _conexion = "";
+        //private readonly MongoClient _client;
+        //private readonly IMongoDatabase _dataBase;
+        private readonly IMongoCollection<DepartamentoBson> _collection;
 
-        public DepartamentoServices(IOptions<BookStoreDatabaseSettings> DBSettings)
+        public DepartamentoServices(IOptions<SettingsDataBase> DBSettings)
         {
-            _conexion = DBSettings.Value.ConnectionStrings;
-            _client = new MongoClient(_conexion);
-            _dataBase = _client.GetDatabase("Empleados");
-            _collection = _dataBase.GetCollection<BsonDocument>("Departamentos");
+            /*
+                _conexion = DBSettings.Value.ConnectionStrings;
+                _client = new MongoClient(_conexion);
+                _dataBase = _client.GetDatabase(DBSettings.Value.DBEmpleados);
+                _collection = _dataBase.GetCollection<DepartamentoBson>(DBSettings.Value.DptoCollectionName);
+            */
+
+            var mongoClient = new MongoClient(DBSettings.Value.ConnectionStrings);
+
+            var mongoDatabase = mongoClient.GetDatabase(DBSettings.Value.DBEmpleados);
+
+            _collection = mongoDatabase.GetCollection<DepartamentoBson>(DBSettings.Value.DptoCollectionName);
+
 
         }
 
         public async Task<List<DepartamentoBson>> GetDepartamentos()
         {
-            List<DepartamentoBson> _dblist = new List<DepartamentoBson>();
+            List<DepartamentoBson> _dblist = new ();
 
             var dblist = await _collection.FindAsync(_ => true);
 
@@ -33,46 +44,61 @@ namespace API_CRUDMONGO.Services
                 //Console.WriteLine(db.GetValue("descripcion"));
                 _dblist.Add(new DepartamentoBson
                 {
-                    _id = db.GetValue("_id").ToString(),
-                    descripcion = db.GetValue("descripcion").ToString()
-                });
+                    _id = db._id,
+                    descripcion = db.descripcion
+                }) ;
 
             }
             return _dblist;
 
-            /**
-            using MongoDB.Bson;
-            var document = new BsonDocument
+        }
+
+        public async Task<DepartamentoBson?> GetDepartamento(string _id)
+        {
+            var resultado = new DepartamentoBson();
+            var filtro = Builders<DepartamentoBson>.Filter.Eq("_id", _id);
+
+            resultado = await _collection.Find(filtro).FirstOrDefaultAsync();
+
+            return resultado;
+
+        }
+
+        public async Task CreateDepartamento(DepartamentoBson departamento)
+        {
+            DepartamentoBson _departamento = new()
             {
-               { "account_id", "MDB829001337" },
-               { "account_holder", "Linus Torvalds" },
-               { "account_type", "checking" },
-               { "balance", 50352434 }
+                descripcion = departamento.descripcion
             };
-             */
 
-        }
-
-        public Task<DepartamentoBson> GetDepartamento(int _id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<DepartamentoBson> CreateDepartamento(DepartamentoBson departamento)
-        {
-            throw new NotImplementedException();
-
+            await _collection.InsertOneAsync(_departamento);
             
         }
 
-        public Task<DepartamentoBson> UpdateDepartamento(int _id, DepartamentoBson departamento)
+        public async Task<UpdateResult> UpdateDepartamento(string _id, DepartamentoBson departamento)
         {
-            throw new NotImplementedException();
+            DepartamentoBson dpto = new()
+            {
+               _id = departamento._id,
+               descripcion = departamento.descripcion
+            };
+
+            var filtros = Builders<DepartamentoBson>.Filter.Eq(a => a._id, dpto._id);
+            var update = Builders<DepartamentoBson>.Update.Set(a => a.descripcion, dpto.descripcion);
+
+            var resultado = await _collection.UpdateOneAsync(filtros, update);
+
+            return resultado;
         }
 
-        public Task<bool> DeleteDepartamento(int _id)
+        public Task<DeleteResult> DeleteDepartamento(string _id)
         {
-            throw new NotImplementedException();
+            var filtro = Builders<DepartamentoBson>.Filter.Eq("_id", _id);
+            
+            var resultado = _collection.DeleteOneAsync(filtro);
+
+            return resultado;
+
         }
 
     }

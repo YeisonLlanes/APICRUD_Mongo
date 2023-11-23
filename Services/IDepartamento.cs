@@ -1,4 +1,5 @@
 ﻿using API_CRUDMONGO.Models;
+using MongoDB.Driver;
 
 namespace API_CRUDMONGO.Services
 {
@@ -6,13 +7,13 @@ namespace API_CRUDMONGO.Services
     {
         Task<List<DepartamentoBson>> GetDepartamentos();
 
-        Task<DepartamentoBson> GetDepartamento(int _id);
+        Task<DepartamentoBson?> GetDepartamento(string _id);
 
-        Task<DepartamentoBson> CreateDepartamento(DepartamentoBson departamento);
+        Task CreateDepartamento(DepartamentoBson departamento);
 
-        Task<DepartamentoBson> UpdateDepartamento(int _id, DepartamentoBson departamento);
+        Task <UpdateResult> UpdateDepartamento(string _id, DepartamentoBson departamento);
 
-        Task<bool> DeleteDepartamento(int _id);
+        Task <DeleteResult> DeleteDepartamento(string _id);
 
 
     }

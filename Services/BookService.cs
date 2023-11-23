@@ -9,7 +9,7 @@ namespace API_CRUDMONGO.Services
     public class BookService : IBook
     {
         private readonly IMongoCollection<Book> _booksCollection;
-        public BookService(IOptions<BookStoreDatabaseSettings> DBSettings)
+        public BookService(IOptions<SettingsDataBase> DBSettings)
         {
             var mongoClient = new MongoClient(DBSettings.Value.ConnectionStrings);
 

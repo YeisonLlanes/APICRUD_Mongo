@@ -13,16 +13,16 @@ namespace API_CRUDMONGO.Models
 
         [BsonElement("Name")]
         [Required(ErrorMessage = "* Obligatorio")]
-        public string BookName { get; set; } = null;
+        public string BookName { get; set; } = string.Empty;
 
         [BsonElement("Price")]
         public decimal Price { get; set; }
 
         [BsonElement("Category")]
-        public string Category { get; set; } = null;
+        public string Category { get; set; } = string.Empty;
 
         [BsonElement("Author")]
-        public string Author { get; set; } = null;
+        public string Author { get; set; } = string.Empty;
 
     }
 }
